@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ממלכת החשבון 2026 - אלכסנדר זבודיסקר</title>
+    <title>ממלכת החשבון 2026 - אבולוציית הממלכה</title>
     <style>
-        :root { --primary: #6C5CE7; --secondary: #00CEC9; --accent: #FDCB6E; --danger: #ff7675; }
+        :root { --primary: #6C5CE7; --secondary: #00CEC9; --accent: #FDCB6E; --danger: #ff7675; --gold: #f1c40f; }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -20,47 +20,53 @@
 
         #game-container {
             background: rgba(255, 255, 255, 0.96); border-radius: 20px; padding: 10px; 
-            width: 95%; max-width: 310px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 95%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             display: flex; flex-direction: column; gap: 5px; position: relative;
         }
 
-        #menu-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: white; z-index: 100; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; padding: 20px; }
-        .menu-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: white; }
+        #menu-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: white; z-index: 100; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 15px; }
+        .menu-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
         .btn-reg { background: var(--primary); } .btn-time { background: var(--secondary); }
+        .btn-gift { background: var(--gold); color: #333; }
+        .btn-gift:disabled { background: #ccc; opacity: 0.6; }
 
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-        .home-btn { background: #eee; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; }
+        .home-btn { background: #eee; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; }
 
         .stats-bar { display: flex; justify-content: space-around; font-weight: bold; font-size: 0.8rem; width: 100%; }
-        #timer-display { color: var(--danger); font-size: 1.1rem; display: none; font-weight: 900; }
-        #shield-status { font-size: 0.7rem; color: var(--secondary); font-weight: bold; margin: 2px 0; }
+        #lvl-progress-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; margin: 4px 0; overflow: hidden; }
+        #lvl-progress-bar { height: 100%; background: var(--secondary); width: 0%; transition: width 0.3s; }
 
-        #monster-zone { height: 60px; font-size: 50px; display: flex; justify-content: center; align-items: center; }
-        #question-display { background: #F1F2F6; border-radius: 12px; padding: 10px; font-size: 30px; font-weight: 900; direction: ltr; }
-        #answer-view { font-size: 28px; color: var(--primary); min-height: 35px; border-bottom: 2px solid #ddd; margin: 5px 0; }
+        #monster-zone { height: 70px; font-size: 55px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .fire-effect { position: absolute; font-size: 25px; animation: rise 1s forwards; }
+        @keyframes rise { 0% {bottom: 0; opacity: 1;} 100% {bottom: 60px; opacity: 0;} }
 
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .num-btn { background: #F1F2F6; border: none; padding: 11px 0; font-size: 18px; font-weight: bold; border-radius: 10px; box-shadow: 0 3px 0 #ddd; }
-        .num-btn:active { transform: translateY(2px); box-shadow: none; }
-        .action-btn { background: var(--accent) !important; box-shadow: 0 3px 0 #e17055 !important; }
-        #submit-btn { grid-column: span 3; background: var(--primary); color: white; padding: 12px; font-size: 20px; border-radius: 10px; margin-top: 2px; border: none; font-weight: bold; }
+        #question-display { background: #F1F2F6; border-radius: 12px; padding: 10px; font-size: 32px; font-weight: 900; direction: ltr; }
+        #answer-view { font-size: 30px; color: var(--primary); min-height: 38px; border-bottom: 2px solid #ddd; margin: 5px 0; font-weight: bold; }
 
-        #shop-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; padding: 15px; z-index: 200; width: 280px; max-height: 70vh; overflow-y: auto; border: 3px solid var(--secondary); }
-        .char-item { display: inline-block; margin: 4px; font-size: 20px; width: 45px; height: 45px; line-height: 45px; border-radius: 8px; background: #f1f2f6; position: relative; }
-        .locked { opacity: 0.3; } .level-tag { font-size: 8px; position: absolute; bottom: 1px; width: 100%; left: 0; }
-        .copyright { font-size: 0.7rem; color: #95a5a6; margin-top: 8px; font-weight: bold; border-top: 1px solid #eee; padding-top: 4px; width: 100%; }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .num-btn { background: #F1F2F6; border: none; padding: 12px 0; font-size: 20px; font-weight: bold; border-radius: 10px; box-shadow: 0 3px 0 #ddd; }
+        #submit-btn { grid-column: span 3; background: var(--primary); color: white; padding: 12px; font-size: 22px; border-radius: 10px; border: none; font-weight: bold; }
+
+        #shop-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; padding: 15px; z-index: 200; width: 300px; border: 3px solid var(--secondary); box-shadow: 0 0 30px rgba(0,0,0,0.4); max-height: 80vh; overflow-y: auto; }
+        .char-card { display: inline-block; width: 60px; height: 75px; background: #f8f9fa; margin: 5px; border-radius: 10px; border: 2px solid #eee; position: relative; padding: 5px; cursor: pointer; }
+        .char-card.locked { opacity: 0.4; cursor: not-allowed; background: #ddd; }
+        .char-price { font-size: 10px; font-weight: bold; color: var(--gold); background: #333; border-radius: 5px; padding: 1px 3px; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 90%; }
+        .char-lvl-lock { font-size: 9px; color: #666; position: absolute; top: 2px; width: 100%; text-align: center; }
+        .copyright { font-size: 0.7rem; color: #95a5a6; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body id="main-body" class="bg-lvl-1">
 
 <div id="game-container">
     <div id="menu-screen">
-        <h2 style="margin:0; color: var(--primary);">ממלכת החשבון</h2>
-        <p style="font-size: 0.9rem; margin:0;">בחר מצב משחק:</p>
+        <h2 style="margin:0; color: var(--primary); font-size: 24px;">ממלכת החשבון</h2>
         <button class="menu-btn btn-reg" onclick="startMode('normal')">🌟 מסע אינסופי</button>
         <button class="menu-btn btn-time" onclick="startMode('time')">⏱️ מרוץ נגד הזמן</button>
-        <div style="font-size: 0.8rem; color: #666; text-align: center; line-height: 1.4;">
-            שיא מסע: שלב <span id="hi-lvl">1</span><br>שיא זמן: <span id="hi-time">0</span> תשובות
+        <button id="gift-btn" class="menu-btn btn-gift" onclick="spinWheel()">🎁 טוען מתנה...</button>
+        <div style="font-size: 0.8rem; color: #444; background: #f0f0f0; padding: 8px; border-radius: 10px; width: 100%;">
+            <b>משימה:</b> <span id="quest-text">פתור תרגילים</span> 
+            (<span id="quest-prog">0</span>/10) 💰100
         </div>
         <div class="copyright">©אלכסנדר זבודיסקר 2026©</div>
     </div>
@@ -70,162 +76,160 @@
         <div class="stats-bar">
             <span>💰 <span id="score">0</span></span>
             <span id="lives-display">❤️❤️❤️</span>
-            <span id="timer-display">⏱️ 60</span>
+            <span id="timer-display" style="display:none">⏱️ 60</span>
         </div>
     </div>
     
-    <div id="shield-status">🛡️ מגן פעיל!</div>
-    
-    <div style="font-weight: bold; font-size: 0.8rem;">
-        <span id="mode-text">שלב</span>: <span id="level">1</span>
-    </div>
+    <div id="lvl-progress-bg"><div id="lvl-progress-bar"></div></div>
+    <div style="font-size: 0.7rem; font-weight: bold;">רמה: <span id="level-num">1</span></div>
 
     <div id="monster-zone"><div id="monster">🐲</div></div>
     <div id="question-display"><span id="n1"></span><span id="op"></span><span id="n2"></span>=</div>
     <div id="answer-view">?</div>
 
     <div class="numpad">
-        <button class="num-btn" onclick="addNum(1)">1</button>
-        <button class="num-btn" onclick="addNum(2)">2</button>
-        <button class="num-btn" onclick="addNum(3)">3</button>
-        <button class="num-btn" onclick="addNum(4)">4</button>
-        <button class="num-btn" onclick="addNum(5)">5</button>
-        <button class="num-btn" onclick="addNum(6)">6</button>
-        <button class="num-btn" onclick="addNum(7)">7</button>
-        <button class="num-btn" onclick="addNum(8)">8</button>
-        <button class="num-btn" onclick="addNum(9)">9</button>
-        <button class="num-btn action-btn" onclick="clearAns()">C</button>
-        <button class="num-btn" onclick="addNum(0)">0</button>
-        <button class="num-btn action-btn" onclick="toggleShop()">🛒</button>
+        <button class="num-btn" onclick="addNum(1)">1</button><button class="num-btn" onclick="addNum(2)">2</button><button class="num-btn" onclick="addNum(3)">3</button>
+        <button class="num-btn" onclick="addNum(4)">4</button><button class="num-btn" onclick="addNum(5)">5</button><button class="num-btn" onclick="addNum(6)">6</button>
+        <button class="num-btn" onclick="addNum(7)">7</button><button class="num-btn" onclick="addNum(8)">8</button><button class="num-btn" onclick="addNum(9)">9</button>
+        <button class="num-btn" style="background:var(--accent)" onclick="clearAns()">C</button><button class="num-btn" onclick="addNum(0)">0</button><button class="num-btn" style="background:var(--accent)" onclick="toggleShop()">🛒</button>
         <button id="submit-btn" onclick="check()">בדוק!</button>
     </div>
     <div class="copyright">©אלכסנדר זבודיסקר 2026©</div>
 </div>
 
 <div id="shop-modal">
-    <h4 style="margin:5px">חנות הבונוסים</h4>
-    <button class="num-btn" style="width:100%; margin-bottom:5px; background: #ff7675; color:white; border:none;" onclick="buyItem('heart')">❤️ לב (20 זהב)</button>
-    <button class="num-btn" style="width:100%; margin-bottom:10px; background: #00cec9; color:white; border:none;" onclick="buyItem('shield')">🛡️ מגן מטעויות (40 זהב)</button>
+    <h3 style="margin:5px">חנות הגיבורים</h3>
+    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+        <button class="menu-btn btn-reg" style="flex:1; padding:5px; font-size:12px;" onclick="buyItem('heart')">❤️ לב (25💰)</button>
+        <button class="menu-btn btn-time" style="flex:1; padding:5px; font-size:12px;" onclick="buyItem('shield')">🛡️ מגן (50💰)</button>
+    </div>
     <div id="shop-items"></div>
-    <button class="num-btn" style="width:100%; margin-top:10px;" onclick="toggleShop()">סגור</button>
+    <button class="num-btn" style="width:100%; margin-top:10px; background:#eee;" onclick="toggleShop()">סגור</button>
 </div>
 
 <script>
     let score = parseInt(localStorage.getItem('math_gold')) || 0;
-    let hiLvl = parseInt(localStorage.getItem('hi_lvl')) || 1;
-    let hiTime = parseInt(localStorage.getItem('hi_time')) || 0;
-    let monster = localStorage.getItem('math_char') || '🐲';
+    let monster = localStorage.getItem('math_char') || '🦁';
+    let questCount = parseInt(localStorage.getItem('math_quest')) || 0;
+    let lastGiftTime = parseInt(localStorage.getItem('math_gift_time')) || 0;
+    let myChars = JSON.parse(localStorage.getItem('math_my_chars')) || ['🦁'];
+    
     let gameMode = 'normal', level = 1, lives = 3, count = 0, currentAns = "", correct = 0, hasShield = false;
     let timeLeft = 60, timerInterval, audioCtx;
 
-    const charList = [
-        {char: '🦁', lvl: 1}, {char: '🐱', lvl: 1}, {char: '🐷', lvl: 2}, {char: '🐙', lvl: 4}, 
-        {char: '🦄', lvl: 6}, {char: '👽', lvl: 8}, {char: '👑', lvl: 10}, {char: '🏛️', lvl: 12}, 
-        {char: '👾', lvl: 15}, {char: '🔥', lvl: 18}, {char: '🐲', lvl: 20}, {char: '🪐', lvl: 25}
+    const charData = [
+        {c:'🦁', l:1, p:0}, {c:'🐱', l:1, p:20}, {c:'🐶', l:2, p:30}, {c:'🐷', l:3, p:40},
+        {c:'🐙', l:5, p:60}, {c:'🦄', l:7, p:100}, {c:'🦊', l:9, p:120}, {c:'👽', l:12, p:200},
+        {c:'🤖', l:15, p:250}, {c:'👾', l:18, p:300}, {c:'🐲', l:22, p:500}, {c:'🦕', l:26, p:600},
+        {c:'👑', l:30, p:800}, {c:'🪐', l:40, p:1200}, {c:'🧙', l:50, p:2000}
     ];
 
-    function goHome() {
-        clearInterval(timerInterval);
-        document.getElementById('menu-screen').style.display = 'flex';
-        updateStats();
+    function updateGiftStatus() {
+        const btn = document.getElementById('gift-btn');
+        const wait = (lastGiftTime + 300000) - Date.now();
+        if (wait <= 0) { btn.disabled = false; btn.innerText = "🎁 קבל מתנה!"; }
+        else { btn.disabled = true; btn.innerText = `🎁 זמין בעוד ${Math.floor(wait/60000)}:${Math.floor((wait%60000)/1000).toString().padStart(2,'0')}`; }
+    }
+
+    function spinWheel() {
+        lastGiftTime = Date.now(); localStorage.setItem('math_gift_time', lastGiftTime);
+        let prizes = [() => {score+=100; return "100 זהב!"}, () => {lives=3; return "לבבות מלאים!"}, () => {hasShield=true; return "מגן חינם!"}];
+        alert("זכית ב" + prizes[Math.floor(Math.random()*3)]());
+        save(); updateStats();
     }
 
     function startMode(m) {
-        gameMode = m; level = 1; lives = 3; count = 0; timeLeft = 60; hasShield = false;
+        gameMode = m; level = 1; lives = 3; count = 0; timeLeft = 60;
         document.getElementById('menu-screen').style.display = 'none';
         document.getElementById('timer-display').style.display = (m === 'time') ? 'block' : 'none';
-        document.getElementById('lives-display').style.display = (m === 'normal') ? 'block' : 'none';
-        document.getElementById('mode-text').innerText = (m === 'time') ? 'נקודות' : 'שלב';
-        if(m === 'time') { 
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--; document.getElementById('timer-display').innerText = '⏱️ ' + timeLeft;
-                if(timeLeft <= 0) endGame("הזמן נגמר! פתרת " + count + " תרגילים.");
-            }, 1000);
-        }
+        if(m === 'time') { clearInterval(timerInterval); timerInterval = setInterval(() => { timeLeft--; document.getElementById('timer-display').innerText = '⏱️ '+timeLeft; if(timeLeft<=0) endGame("נגמר הזמן!"); }, 1000); }
         updateStats(); generate();
     }
 
-    function endGame(msg) {
-        clearInterval(timerInterval);
-        if(gameMode === 'time' && count > hiTime) { hiTime = count; localStorage.setItem('hi_time', hiTime); }
-        if(gameMode === 'normal' && level > hiLvl) { hiLvl = level; localStorage.setItem('hi_lvl', hiLvl); }
-        alert(msg); goHome();
-    }
-
-    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function playSnd(f, t, d=0.1) { initAudio(); try { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = t; o.frequency.value = f; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d); } catch(e) {} }
-
     function generate() {
-        let diff = (gameMode === 'time') ? Math.floor(count/5)+1 : level;
-        let max = diff * 10; let isBoss = (gameMode === 'normal' && (count+1) % 5 === 0);
-        document.getElementById('monster').innerText = isBoss ? '👹' : monster;
-        let n1 = Math.floor(Math.random() * max) + 1, n2 = Math.floor(Math.random() * max) + 1;
-        let ops = (diff > 2) ? ['+', '-', '*'] : ['+', '-'];
+        let diff = Math.max(level, Math.floor(count/4)+1);
+        let ops = ['+', '-'];
+        if(diff > 3) ops.push('*');
+        if(diff > 10) ops.push('/');
         let op = ops[Math.floor(Math.random() * ops.length)];
-        if(op === '-' && n1 < n2) [n1, n2] = [n2, n1];
-        correct = op === '+' ? n1+n2 : op === '-' ? n1-n2 : n1*n2;
-        document.getElementById('n1').innerText = n1; document.getElementById('op').innerText = op === '*' ? '×' : op; document.getElementById('n2').innerText = n2;
-        currentAns = ""; updateView(); updateBG();
+        let n1, n2;
+        if(op === '/') { n2 = Math.floor(Math.random()*9)+2; correct = Math.floor(Math.random()*10)+1; n1 = n2*correct; }
+        else { n1 = Math.floor(Math.random()*(diff*10))+1; n2 = Math.floor(Math.random()*(diff*10))+1; if(op==='-' && n1<n2) [n1,n2]=[n2,n1]; correct = op==='+'?n1+n2:op==='-'?n1-n2:n1*n2; }
+        document.getElementById('n1').innerText = n1; document.getElementById('op').innerText = op==='*'? '×': op==='/'?'÷':op; document.getElementById('n2').innerText = n2;
+        currentAns = ""; updateView(); updateBG(diff);
     }
 
     function check() {
         if(currentAns === "") return;
         if(parseInt(currentAns) === correct) {
-            count++; score += (gameMode === 'normal' && count % 5 === 0) ? 50 : 10;
-            if(gameMode === 'time') { timeLeft += 2; score += 5; }
-            if(gameMode === 'normal' && score >= level * 150) level++;
+            count++; questCount++; score += (count%5===0?50:10);
+            if(gameMode === 'time') timeLeft += 2;
+            let req = level * 100;
+            if(score >= req) { level++; showFire('🌟'); }
+            if(questCount >= 10) { score+=100; questCount=0; alert("משימה הושלמה! 💰100"); }
             playSnd(600, 'sine'); generate();
         } else {
-            if(hasShield) { hasShield = false; alert("המגן הציל אותך!"); }
-            else {
-                if(gameMode === 'normal') { lives--; if(lives <= 0) endGame("נגמרו הלבבות! הגעת לשלב " + level); }
-                else { timeLeft -= 5; if(timeLeft <= 0) timeLeft = 0; }
-                playSnd(150, 'sawtooth');
-            }
+            if(hasShield) { hasShield = false; alert("🛡️ המגן נשבר!"); }
+            else { if(gameMode==='normal'){ lives--; if(lives<=0) endGame("אופס! נגמרו החיים."); } else timeLeft-=5; }
+            playSnd(150, 'sawtooth');
         }
         save(); updateStats();
     }
 
-    function buyItem(type) {
-        if(type === 'heart' && score >= 20 && lives < 3) { score -= 20; lives++; }
-        else if(type === 'shield' && score >= 40 && !hasShield) { score -= 40; hasShield = true; }
-        else { alert("לא ניתן לקנות!"); return; }
-        save(); updateStats(); toggleShop(); playSnd(800, 'sine');
-    }
-
-    function buyChar(c) { if(score >= 50) { score -= 50; monster = c; save(); updateStats(); toggleShop(); playSnd(1000, 'sine'); } }
-    function addNum(n) { if(currentAns.length < 5) currentAns += n; updateView(); playSnd(440, 'sine', 0.05); }
-    function clearAns() { currentAns = ""; updateView(); }
-    function updateView() { document.getElementById('answer-view').innerText = currentAns || "?"; }
-    function updateBG() { 
-        const b = document.getElementById('main-body');
-        let diff = (gameMode === 'time') ? Math.floor(count/5)+1 : level;
-        if(diff > 20) b.className = 'bg-infinity';
-        else b.className = diff < 3 ? 'bg-lvl-1' : diff < 7 ? 'bg-lvl-2' : 'bg-lvl-3';
-    }
-    function save() { localStorage.setItem('math_gold', score); localStorage.setItem('math_char', monster); }
     function updateStats() {
         document.getElementById('score').innerText = score;
-        document.getElementById('level').innerText = (gameMode === 'time') ? count : level;
         document.getElementById('lives-display').innerText = "❤️".repeat(lives);
-        document.getElementById('shield-status').style.display = hasShield ? 'block' : 'none';
-        document.getElementById('hi-lvl').innerText = hiLvl;
-        document.getElementById('hi-time').innerText = hiTime;
+        document.getElementById('quest-prog').innerText = questCount;
+        document.getElementById('level-num').innerText = level;
+        document.getElementById('monster').innerText = monster;
+        let progress = (score % (level*100)) / (level);
+        document.getElementById('lvl-progress-bar').style.width = Math.min(progress, 100) + "%";
     }
+
     function toggleShop() {
         const m = document.getElementById('shop-modal'); m.style.display = (m.style.display === 'block') ? 'none' : 'block';
         if(m.style.display === 'block') {
-            let currentLvl = (gameMode === 'time') ? Math.floor(count/5)+1 : level;
-            document.getElementById('shop-items').innerHTML = charList.map(i => `
-                <div class="char-item ${currentLvl < i.lvl ? 'locked' : ''}" onclick="${currentLvl < i.lvl ? '' : `buyChar('${i.char}')`}">
-                    ${currentLvl < i.lvl ? '❓' : i.char}
-                    <span class="level-tag">L${i.lvl}</span>
-                </div>
-            `).join('');
+            document.getElementById('shop-items').innerHTML = charData.map(item => {
+                const isOwned = myChars.includes(item.c);
+                const isLocked = level < item.l;
+                return `
+                    <div class="char-card ${isLocked ? 'locked' : ''}" onclick="attemptBuy('${item.c}', ${item.p}, ${item.l})">
+                        <div class="char-lvl-lock">${isLocked ? 'רמה '+item.l : 'פתוח'}</div>
+                        <div style="font-size:30px; margin-top:15px;">${isLocked ? '🔒' : item.c}</div>
+                        <div class="char-price">${isOwned ? 'בבעלותך' : item.p + '💰'}</div>
+                    </div>
+                `;
+            }).join('');
         }
     }
-    window.onload = updateStats;
+
+    function attemptBuy(char, price, reqLvl) {
+        if(level < reqLvl) { alert("אתה חייב להגיע לרמה " + reqLvl + "!"); return; }
+        if(myChars.includes(char)) { monster = char; save(); updateStats(); toggleShop(); return; }
+        if(score >= price) {
+            score -= price; myChars.push(char); monster = char;
+            save(); updateStats(); toggleShop(); playSnd(800, 'sine');
+        } else { alert("חסר לך זהב!"); }
+    }
+
+    function save() { 
+        localStorage.setItem('math_gold', score); 
+        localStorage.setItem('math_char', monster); 
+        localStorage.setItem('math_quest', questCount);
+        localStorage.setItem('math_my_chars', JSON.stringify(myChars));
+    }
+
+    function showFire(e='🔥') { const f = document.createElement('div'); f.className='fire-effect'; f.innerText=e; document.getElementById('monster-zone').appendChild(f); setTimeout(()=>f.remove(),1000); }
+    function playSnd(f,t) { if(!audioCtx) audioCtx = new AudioContext(); let o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=t; o.frequency.value=f; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.1); }
+    function goHome() { clearInterval(timerInterval); document.getElementById('menu-screen').style.display='flex'; updateGiftStatus(); }
+    function endGame(m) { alert(m); goHome(); }
+    function addNum(n) { if(currentAns.length<5) currentAns+=n; updateView(); }
+    function clearAns() { currentAns=""; updateView(); }
+    function updateView() { document.getElementById('answer-view').innerText = currentAns || "?"; }
+    function updateBG(d) { document.getElementById('main-body').className = d>20?'bg-infinity':d<4?'bg-lvl-1':d<10?'bg-lvl-2':'bg-lvl-3'; }
+    function buyItem(t) { if(t==='heart'&&score>=25&&lives<3){score-=25; lives++;} if(t==='shield'&&score>=50&&!hasShield){score-=50; hasShield=true;} save(); updateStats(); }
+
+    window.onload = () => { updateStats(); updateGiftStatus(); setInterval(updateGiftStatus, 1000); };
 </script>
 </body>
 </html>
