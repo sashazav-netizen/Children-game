@@ -31,16 +31,21 @@
             display: flex; flex-direction: column; gap: 5px; position: relative;
         }
 
-        #menu-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: white; z-index: 100; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 15px; }
+        #menu-screen, #mode-selection { position: absolute; top:0; left:0; width:100%; height:100%; background: white; z-index: 100; border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 15px; }
+        #mode-selection { z-index: 101; display: none; }
+        
         .menu-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: white; transition: transform 0.1s; }
         .btn-reg { background: var(--primary); } .btn-time { background: var(--secondary); }
         .btn-gift { background: var(--gold); color: #333; }
+        .btn-mixed { background: linear-gradient(to left, #6C5CE7, #00CEC9); position: relative; }
+        .btn-mixed::after { content: "1.5x 💰"; position: absolute; top: -5px; left: -5px; background: red; color: white; font-size: 10px; padding: 2px 5px; border-radius: 5px; transform: rotate(-10deg); }
         .btn-install { background: #2d3436; color: white; display: block; border: 2px solid #636e72; font-size: 14px; }
 
         .top-nav { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
         .home-btn { background: #eee; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; }
 
         .stats-bar { display: flex; justify-content: space-around; font-weight: bold; font-size: 0.8rem; width: 100%; }
+        #timer-box { font-size: 14px; color: var(--danger); font-weight: bold; display: none; }
         #lvl-progress-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; margin: 4px 0; overflow: hidden; }
         #lvl-progress-bar { height: 100%; background: var(--secondary); width: 0%; transition: width 0.3s; }
 
@@ -59,10 +64,7 @@
         .char-card { display: inline-block; width: 60px; height: 75px; background: #f8f9fa; margin: 5px; border-radius: 10px; border: 2px solid #eee; position: relative; padding: 5px; cursor: pointer; }
         .char-card.locked { opacity: 0.4; cursor: not-allowed; background: #ddd; }
         .char-price { font-size: 10px; font-weight: bold; color: var(--gold); background: #333; border-radius: 5px; padding: 1px 3px; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 90%; text-align: center; }
-        .char-lvl-lock { font-size: 9px; color: #666; position: absolute; top: 2px; width: 100%; text-align: center; }
         
-        .logo-svg { width: 50px; height: 50px; margin-bottom: 5px; }
-        .logo-nav { width: 25px; height: 25px; margin-right: 5px; }
         .copyright { font-size: 0.7rem; color: #95a5a6; margin-top: 5px; font-weight: bold; width: 100%; border-top: 1px solid #eee; padding-top: 3px; }
     </style>
 </head>
@@ -70,35 +72,33 @@
 
 <div id="game-container">
     <div id="menu-screen">
-        <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-            <rect width="100" height="100" rx="20" fill="#6C5CE7"/>
-            <path d="M50 15 L85 30 L85 70 L50 85 L15 70 L15 30 Z" fill="#F1C40F" stroke="#333" stroke-width="3"/>
-            <text x="50" y="60" text-anchor="middle" font-size="35" font-weight="bold" fill="#333" font-family="serif">&pi;</text>
-        </svg>
+        <svg style="width:50px; height:50px" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#6C5CE7"/><text x="50" y="65" text-anchor="middle" font-size="40" font-weight="bold" fill="#F1C40F">&pi;</text></svg>
         <h2 style="margin:0; color: var(--primary); font-size: 24px;">ממלכת החשבון</h2>
-        
-        <button class="menu-btn btn-reg" onclick="startMode('normal')">🌟 מסע אינסופי</button>
-        <button class="menu-btn btn-time" onclick="startMode('time')">⏱️ מרוץ נגד הזמן</button>
+        <button class="menu-btn btn-reg" onclick="showModes()">🌟 התחל משחק</button>
         <button id="gift-btn" class="menu-btn btn-gift" onclick="spinWheel()">🎁 טוען מתנה...</button>
-        
-        <button id="install-btn" class="menu-btn btn-install" onclick="handleInstall()">📥 הורד אפליקציה למכשיר</button>
-
-        <div style="font-size: 0.8rem; color: #444; background: #f0f0f0; padding: 8px; border-radius: 10px; width: 100%;">
-            <b>משימה:</b> <span id="quest-prog-ui">0</span>/10 תרגילים 💰100
-        </div>
+        <button id="install-btn" class="menu-btn btn-install" onclick="handleInstall()">📥 התקן אפליקציה</button>
         <div class="copyright">©אלכסנדר זבודיסקר 2026©</div>
+    </div>
+
+    <div id="mode-selection">
+        <h3>בחר סגנון:</h3>
+        <button class="menu-btn btn-reg" onclick="startGame('plusminus', false)">➕/➖ חיבור וחיסור</button>
+        <button class="menu-btn btn-time" onclick="startGame('plusminus', true)">⏱️ מרוץ נגד הזמן!</button>
+        <button class="menu-btn btn-reg" style="background:#e67e22" onclick="startGame('multidiv', false)">✖️/➗ כפל וחילוק</button>
+        <button class="menu-btn btn-mixed" onclick="startGame('mixed', false)">🎲 הכל מעורבב (בונוס!)</button>
+        <button class="menu-btn" style="background:#636e72" onclick="goHome()">חזור</button>
     </div>
 
     <div class="top-nav">
         <button class="home-btn" onclick="goHome()">🏠</button>
-        <svg class="logo-nav" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#6C5CE7"/><path d="M50 15 L85 30 L85 70 L50 85 L15 70 L15 30 Z" fill="#F1C40F" stroke="#333" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-size="35" font-weight="bold" fill="#333">&pi;</text></svg>
+        <div id="timer-box">⏱️ <span id="time-left">30</span></div>
         <div class="stats-bar">💰 <span id="score">0</span> | ❤️ <span id="lives-display">❤️❤️❤️</span></div>
     </div>
     
     <div id="lvl-progress-bg"><div id="lvl-progress-bar"></div></div>
-    <div style="font-size: 0.7rem; font-weight: bold; color: var(--text);">רמה: <span id="level-num">1</span></div>
+    <div style="font-size: 0.7rem; font-weight: bold;">רמה: <span id="level-num">1</span></div>
 
-    <div id="monster-zone"><div id="monster">🐲</div></div>
+    <div id="monster-zone"><div id="monster">🦁</div></div>
     <div id="question-display"><span id="n1"></span><span id="op"></span><span id="n2"></span>=</div>
     <div id="answer-view">?</div>
 
@@ -106,20 +106,16 @@
         <button class="num-btn" onclick="addNum(1)">1</button><button class="num-btn" onclick="addNum(2)">2</button><button class="num-btn" onclick="addNum(3)">3</button>
         <button class="num-btn" onclick="addNum(4)">4</button><button class="num-btn" onclick="addNum(5)">5</button><button class="num-btn" onclick="addNum(6)">6</button>
         <button class="num-btn" onclick="addNum(7)">7</button><button class="num-btn" onclick="addNum(8)">8</button><button class="num-btn" onclick="addNum(9)">9</button>
-        <button class="num-btn" style="background:var(--accent)" onclick="clearAns()">C</button><button class="num-btn" onclick="addNum(0)">0</button><button class="num-btn" style="background:var(--accent)" onclick="toggleShop()">🛒</button>
-        <button id="submit-btn" onclick="check()">בדוק!</button>
+        <button class="num-btn" style="background:var(--accent)" onclick="addNum('-')">-</button><button class="num-btn" onclick="addNum(0)">0</button><button class="num-btn" style="background:var(--accent)" onclick="clearAns()">C</button>
+        <button class="num-btn" style="grid-column: span 1; background:var(--gold)" onclick="toggleShop()">🛒</button>
+        <button id="submit-btn" style="grid-column: span 2;" onclick="check()">בדוק!</button>
     </div>
-    <div class="copyright">©אלכסנדר זבודיסקר 2026©</div>
 </div>
 
 <div id="shop-modal">
-    <h3 style="margin:5px">חנות הגיבורים</h3>
-    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-        <button class="menu-btn btn-reg" style="flex:1; padding:5px; font-size:12px;" onclick="buyItem('heart')">❤️ לב (25💰)</button>
-        <button class="menu-btn btn-time" style="flex:1; padding:5px; font-size:12px;" onclick="buyItem('shield')">🛡️ מגן (50💰)</button>
-    </div>
+    <h3>חנות הגיבורים</h3>
     <div id="shop-items"></div>
-    <button class="num-btn" style="width:100%; margin-top:10px; background:#eee;" onclick="toggleShop()">סגור</button>
+    <button class="num-btn" style="width:100%; margin-top:10px;" onclick="toggleShop()">סגור</button>
 </div>
 
 <script>
@@ -127,97 +123,93 @@
     let monster = localStorage.getItem('math_char') || '🦁';
     let myChars = JSON.parse(localStorage.getItem('math_my_chars')) || ['🦁'];
     let lastGiftTime = parseInt(localStorage.getItem('math_gift_time')) || 0;
-    let gameMode = 'normal', level = 1, lives = 3, count = 0, currentAns = "", correct = 0, questCount = 0, hasShield = false;
+    let level = 1, lives = 3, currentAns = "", correct = 0, isTimeMode = false, timeLeft = 30, timerInterval;
     let deferredPrompt, audioCtx;
 
-    const charData = [
-        {c:'🦁', l:1, p:0}, {c:'🐱', l:1, p:20}, {c:'🐶', l:2, p:30}, {c:'🐷', l:3, p:40},
-        {c:'🐙', l:5, p:60}, {c:'🦄', l:7, p:100}, {c:'🦊', l:9, p:120}, {c:'👽', l:12, p:200},
-        {c:'🤖', l:15, p:250}, {c:'👾', l:18, p:300}, {c:'🐲', l:22, p:500}, {c:'🦕', l:26, p:600},
-        {c:'👑', l:30, p:800}, {c:'🪐', l:40, p:1200}, {c:'🧙', l:50, p:2000}
-    ];
+    const charData = [{c:'🦁',l:1,p:0},{c:'🐱',l:1,p:20},{c:'🐶',l:2,p:30},{c:'🐙',l:5,p:60},{c:'🦄',l:10,p:150},{c:'🐲',l:25,p:500},{c:'🪐',l:50,p:2000}];
 
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
     function handleInstall() {
         if (deferredPrompt) { deferredPrompt.prompt(); } 
-        else {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            alert(isIOS ? "להורדה באייפון:\n1. לחץ על כפתור השיתוף בתחתית (⬆️)\n2. בחר ב'הוסף למסך הבית' (➕)" : "להתקנה: לחץ על שלוש הנקודות בדפדפן (⋮) ובחר 'התקן אפליקציה'.");
-        }
+        else { alert("להתקנה: לחץ על 'שיתוף' באייפון או על 3 הנקודות באנדרואיד ובחר 'הוסף למסך הבית'."); }
     }
 
-    function startMode(m) {
-        gameMode = m; lives = 3; count = 0; level = 1;
+    function showModes() { document.getElementById('mode-selection').style.display = 'flex'; }
+    function startGame(mode, timed) {
+        currentMode = mode; isTimeMode = timed; lives = 3; level = 1; timeLeft = 30;
+        document.getElementById('mode-selection').style.display = 'none';
         document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('timer-box').style.display = timed ? 'block' : 'none';
+        if(timed) startTimer();
         updateStats(); generate();
     }
 
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('time-left').innerText = timeLeft;
+            if(timeLeft <= 0) { clearInterval(timerInterval); alert("נגמר הזמן!"); goHome(); }
+        }, 1000);
+    }
+
     function generate() {
-        let diff = Math.max(level, Math.floor(count/4)+1);
-        let n1 = Math.floor(Math.random() * (diff * 10)) + 1;
-        let n2 = Math.floor(Math.random() * (diff * 10)) + 1;
-        correct = n1 + n2;
-        document.getElementById('n1').innerText = n1;
-        document.getElementById('op').innerText = "+";
-        document.getElementById('n2').innerText = n2;
-        currentAns = ""; updateView(); updateBG(diff);
+        let n1, n2, op, type = currentMode;
+        if(type === 'mixed') type = Math.random() > 0.5 ? 'plusminus' : 'multidiv';
+        if(type === 'plusminus') {
+            op = Math.random() > 0.5 ? '+' : '-';
+            n1 = Math.floor(Math.random() * (level * 5)) + 2; n2 = Math.floor(Math.random() * (level * 5)) + 2;
+            if(op === '-' && level < 50 && n1 < n2) [n1, n2] = [n2, n1];
+            correct = op === '+' ? n1 + n2 : n1 - n2;
+        } else {
+            op = Math.random() > 0.5 ? '×' : '÷';
+            n2 = Math.floor(Math.random() * (level + 2)) + 1;
+            let res = Math.floor(Math.random() * 10) + 1;
+            if(op === '×') { n1 = Math.floor(Math.random() * (level + 2)) + 1; correct = n1 * n2; }
+            else { n1 = n2 * res; correct = res; }
+        }
+        document.getElementById('n1').innerText = n1; document.getElementById('op').innerText = op; document.getElementById('n2').innerText = n2;
+        currentAns = ""; updateView();
     }
 
     function check() {
-        if(currentAns === "") return;
+        if(currentAns === "" || currentAns === "-") return;
         if(parseInt(currentAns) === correct) {
-            score += 10; count++; questCount++;
+            score += currentMode === 'mixed' ? 15 : 10;
+            if(isTimeMode) timeLeft += 3;
             if(score >= level * 100) { level++; showFire('🌟'); }
-            if(questCount >= 10) { score += 100; questCount = 0; alert("משימה הושלמה! 💰100"); }
-            playSnd(600, 'sine'); save(); updateStats(); generate();
+            playSnd(600); save(); updateStats(); generate();
         } else {
-            if(hasShield) { hasShield = false; alert("🛡️ המגן נשבר!"); }
-            else { lives--; if(lives <= 0) goHome(); }
-            playSnd(150, 'sawtooth'); updateStats();
+            lives--; if(lives <= 0) goHome();
+            playSnd(150); updateStats();
         }
     }
 
     function updateStats() {
         document.getElementById('score').innerText = score;
         document.getElementById('lives-display').innerText = "❤️".repeat(lives);
-        document.getElementById('quest-prog-ui').innerText = questCount;
         document.getElementById('level-num').innerText = level;
         document.getElementById('monster').innerText = monster;
-        let progress = (score % (level * 100)) / level;
-        document.getElementById('lvl-progress-bar').style.width = Math.min(progress, 100) + "%";
+        document.getElementById('lvl-progress-bar').style.width = (score % 100) + "%";
     }
 
     function toggleShop() {
         const m = document.getElementById('shop-modal');
-        m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
         if(m.style.display === 'block') {
-            document.getElementById('shop-items').innerHTML = charData.map(item => {
-                const isOwned = myChars.includes(item.c);
-                const isLocked = level < item.l;
-                return `
-                    <div class="char-card ${isLocked ? 'locked' : ''}" onclick="attemptBuy('${item.c}', ${item.p}, ${item.l})">
-                        <div class="char-lvl-lock">${isLocked ? 'רמה '+item.l : 'פתוח'}</div>
-                        <div style="font-size:30px; margin-top:15px;">${isLocked ? '🔒' : item.c}</div>
-                        <div class="char-price">${isOwned ? 'בבעלות' : item.p + '💰'}</div>
-                    </div>
-                `;
-            }).join('');
+            document.getElementById('shop-items').innerHTML = charData.map(i => `
+                <div class="char-card ${level<i.l?'locked':''}" onclick="attemptBuy('${i.c}',${i.p},${i.l})">
+                    <div style="font-size:9px">${level<i.l?'רמה '+i.l:'פתוח'}</div>
+                    <div style="font-size:30px;margin:5px">${level<i.l?'🔒':i.c}</div>
+                    <div class="char-price">${myChars.includes(i.c)?'בבעלות':i.p+'💰'}</div>
+                </div>`).join('');
         }
     }
 
-    function attemptBuy(char, price, reqLvl) {
-        if(level < reqLvl) { alert("צריך להגיע לרמה " + reqLvl); return; }
-        if(myChars.includes(char)) { monster = char; save(); updateStats(); toggleShop(); return; }
-        if(score >= price) {
-            score -= price; myChars.push(char); monster = char;
-            save(); updateStats(); toggleShop();
-        } else { alert("אין מספיק זהב!"); }
-    }
-
-    function buyItem(t) {
-        if(t==='heart' && score>=25 && lives<3) { score-=25; lives++; }
-        if(t==='shield' && score>=50 && !hasShield) { score-=50; hasShield=true; }
-        save(); updateStats();
+    function attemptBuy(c,p,l) {
+        if(level<l) return;
+        if(myChars.includes(c)) { monster=c; save(); updateStats(); toggleShop(); return; }
+        if(score>=p) { score-=p; myChars.push(c); monster=c; save(); updateStats(); toggleShop(); }
     }
 
     function updateGiftStatus() {
@@ -227,25 +219,14 @@
         else { btn.disabled = true; btn.innerText = `🎁 ${Math.floor(wait/60000)}:${Math.floor((wait%60000)/1000).toString().padStart(2,'0')}`; }
     }
 
-    function spinWheel() {
-        lastGiftTime = Date.now(); localStorage.setItem('math_gift_time', lastGiftTime);
-        score += 50; save(); updateStats(); alert("קיבלת 50 זהב!");
-    }
-
-    function save() { 
-        localStorage.setItem('math_gold', score); 
-        localStorage.setItem('math_char', monster);
-        localStorage.setItem('math_my_chars', JSON.stringify(myChars));
-    }
-
-    function goHome() { document.getElementById('menu-screen').style.display = 'flex'; updateStats(); }
-    function addNum(n) { currentAns += n; updateView(); }
+    function spinWheel() { lastGiftTime = Date.now(); localStorage.setItem('math_gift_time', lastGiftTime); score += 50; save(); updateStats(); alert("קיבלת 50 זהב!"); }
+    function save() { localStorage.setItem('math_gold', score); localStorage.setItem('math_char', monster); localStorage.setItem('math_my_chars', JSON.stringify(myChars)); }
+    function goHome() { clearInterval(timerInterval); document.getElementById('menu-screen').style.display = 'flex'; document.getElementById('mode-selection').style.display = 'none'; updateStats(); }
+    function addNum(n) { if(n==='-' && currentAns !== "") return; currentAns += n; updateView(); }
     function clearAns() { currentAns = ""; updateView(); }
     function updateView() { document.getElementById('answer-view').innerText = currentAns || "?"; }
-    function updateBG(d) { document.getElementById('main-body').className = d>20?'bg-infinity':d<4?'bg-lvl-1':d<10?'bg-lvl-2':'bg-lvl-3'; }
     function showFire(e) { const f = document.createElement('div'); f.className='fire-effect'; f.innerText=e; document.getElementById('monster-zone').appendChild(f); setTimeout(()=>f.remove(),1000); }
-    function playSnd(f,t) { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); let o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=t; o.frequency.value=f; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.1); }
-
+    function playSnd(f) { if(!audioCtx) audioCtx = new AudioContext(); let o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.value=f; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.1); }
     window.onload = () => { updateStats(); setInterval(updateGiftStatus, 1000); };
 </script>
 </body>
